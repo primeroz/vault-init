@@ -230,7 +230,7 @@ func main() {
 
 func initialize() {
 
-	if len(vaultRecoveryPgpKeysString) > 0 && vaultRecoveryPgpKeysString != "" {
+	if len(trimQuote(vaultRecoveryPgpKeysString)) > 0 {
 		log.Printf("PGP Encryption of Recovery Keys requested")
 		keys := strings.Split(trimQuote(vaultRecoveryPgpKeysString), ",")
 
@@ -248,7 +248,7 @@ func initialize() {
     vaultRecoveryPgpKeysString = ""
 	}
 
-	if len(vaultPgpKeysString) > 0 && vaultPgpKeysString != "" {
+	if len(trimQuote(vaultPgpKeysString)) > 0 {
 		log.Printf("PGP Encryption of Sharded Keys requested")
 		keys := strings.Split(trimQuote(vaultPgpKeysString), ",")
 
@@ -266,7 +266,7 @@ func initialize() {
     vaultPgpKeysString = ""
 	}
 
-	if len(rootTokenPgpKeyString) > 0 && rootTokenPgpKeyString != "" {
+	if len(trimQuote(rootTokenPgpKeyString)) > 0 {
 		log.Printf("PGP Encryption of Root Token requested")
 		data, err := ioutil.ReadFile(trimQuote(rootTokenPgpKeyString))
 		if err != nil {
