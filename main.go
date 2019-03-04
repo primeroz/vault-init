@@ -270,6 +270,8 @@ func initialize() {
 			return
 		}
 		rootTokenPgpKey = string(data)
+	} else {
+		rootTokenPgpKey = nil
 	}
 
 	initRequest := InitRequest{
