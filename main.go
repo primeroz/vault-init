@@ -245,7 +245,7 @@ func initialize() {
 			recoveryPgpKeys = append(recoveryPgpKeys, string(data))
 		}
 	} else {
-    vaultRecoveryPgpKeysString = nil
+    vaultRecoveryPgpKeysString = ""
 	}
 
 	if len(vaultPgpKeysString) > 0 && vaultPgpKeysString != "" {
@@ -263,7 +263,7 @@ func initialize() {
 			pgpKeys = append(pgpKeys, string(data))
 		}
 	} else {
-    vaultPgpKeysString = nil
+    vaultPgpKeysString = ""
 	}
 
 	if len(rootTokenPgpKeyString) > 0 && rootTokenPgpKeyString != "" {
@@ -275,7 +275,7 @@ func initialize() {
 		}
 		rootTokenPgpKey = string(data)
 	} else {
-		rootTokenPgpKey = nil
+		rootTokenPgpKey = ""
 	}
 
 	initRequest := InitRequest{
