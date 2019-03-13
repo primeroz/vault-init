@@ -348,7 +348,7 @@ func initialize() {
 	if vaultBankVaultsSupport {
 		log.Println("Encrypting root token for banzaicloud/bank-vaults support...")
 		bankVaultsRootTokenEncryptRequest := &cloudkms.EncryptRequest{
-			Plaintext: initResponse.RootToken,
+			Plaintext: base64.StdEncoding.EncodeToString([]byte(initResponse.RootToken)),
 		}
 
 		bankVaultsRootTokenEncryptResponse, err = kmsService.Projects.Locations.KeyRings.CryptoKeys.Encrypt(kmsKeyId, bankVaultsRootTokenEncryptRequest).Do()
