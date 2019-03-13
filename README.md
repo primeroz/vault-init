@@ -50,6 +50,8 @@ The vault-init service supports the following environment variables for configur
 - `VAULT_AUTO_UNSEAL` - Use Vault 1.0 native auto-unsealing directly. You must
   set the seal configuration in Vault's configuration.
 
+- `VAULT_BANK_VAULTS_SUPPORT` - Create a copy of the root token ,encyrpted, not base64 and changed name to vault-root
+
 - `VAULT_STORED_SHARES` - Number of shares to store on KMS. Only applies to
   Vault 1.0 native auto-unseal. (1)
 

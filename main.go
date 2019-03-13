@@ -39,6 +39,9 @@ var (
 	vaultRecoveryShares    int
 	vaultRecoveryThreshold int
 
+	vaultBankVaultsSupport             bool
+	bankVaultsRootTokenEncryptResponse *cloudkms.EncryptResponse
+
 	rootTokenPgpKeyString      string
 	rootTokenPgpKey            string
 	vaultPgpKeysString         string
@@ -101,6 +104,8 @@ func main() {
 	vaultTlsSkipVerify := boolFromEnv("VAULT_INSECURE_TLS_SKIP_VERIFY", true)
 
 	vaultAutoUnseal := boolFromEnv("VAULT_AUTO_UNSEAL", true)
+
+	vaultBankVaultsSupport = boolFromEnv("VAULT_BANK_VAULTS_SUPPORT", false)
 
 	if vaultAutoUnseal {
 		vaultStoredShares = intFromEnv("VAULT_STORED_SHARES", 1)
@@ -245,7 +250,7 @@ func initialize() {
 			recoveryPgpKeys = append(recoveryPgpKeys, string(data))
 		}
 	} else {
-    vaultRecoveryPgpKeysString = ""
+		vaultRecoveryPgpKeysString = ""
 	}
 
 	if len(trimQuote(vaultPgpKeysString)) > 0 {
@@ -263,7 +268,7 @@ func initialize() {
 			pgpKeys = append(pgpKeys, string(data))
 		}
 	} else {
-    vaultPgpKeysString = ""
+		vaultPgpKeysString = ""
 	}
 
 	if len(trimQuote(rootTokenPgpKeyString)) > 0 {
@@ -340,6 +345,19 @@ func initialize() {
 		return
 	}
 
+	if vaultBankVaultsSupport {
+		log.Println("Encrypting root token for banzaicloud/bank-vaults support...")
+		bankVaultsRootTokenEncryptRequest := &cloudkms.EncryptRequest{
+			Plaintext: initResponse.RootToken,
+		}
+
+		bankVaultsRootTokenEncryptResponse, err = kmsService.Projects.Locations.KeyRings.CryptoKeys.Encrypt(kmsKeyId, bankVaultsRootTokenEncryptRequest).Do()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
 	unsealKeysEncryptRequest := &cloudkms.EncryptRequest{
 		Plaintext: base64.StdEncoding.EncodeToString(initRequestResponseBody),
 	}
@@ -374,6 +392,19 @@ func initialize() {
 	}
 
 	log.Printf("Root token written to gs://%s/%s", gcsBucketName, "root-token.enc")
+
+	// Save the encrypted root token for banzaicloud/bank-vaults support
+	if vaultBankVaultsSupport {
+		bankVaultsRootTokenObject := bucket.Object("vault-root").NewWriter(ctx)
+		defer bankVaultsRootTokenObject.Close()
+
+		_, err = bankVaultsRootTokenObject.Write([]byte(bankVaultsRootTokenEncryptResponse.Ciphertext))
+		if err != nil {
+			log.Println(err)
+		}
+
+		log.Printf("Root token for banzaicloud/bank-vaults written to gs://%s/%s", gcsBucketName, "vault-root")
+	}
 
 	log.Println("Initialization complete.")
 }
